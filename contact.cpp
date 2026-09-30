@@ -17,10 +17,26 @@ viewContacts,
 searchContact, 
 deleteContact, 
 exit, 
-}; 
+};
+
+//This is done to save the contact into file. 
+void save_contacts (std :: string& name, std :: string& phoneNumber) { 
+std :: string contact_file = "contact_file.txt";
+std :: fstream output_file (contact_file.c_str(), std :: ios :: out | std :: ios :: app); 
+if(output_file.is_open()) { 
+output_file << name << " || " << phoneNumber << std :: endl; 
+} 
+else { 
+std :: cerr <<  "File can't be open\n"; 
+} 
+output_file.close(); 
+} 
 
 // check if it is digit. 
-
+// This is done to check: 
+// if the numbers are digit
+// if the numbers are up to 10. 
+// if the input is not empty. 
 bool isDigit (std :: string &phoneContact) { 
 int length = phoneContact.size();
 if(phoneContact.empty()) { 
@@ -56,7 +72,8 @@ std :: cout <<  "Phone Contact: ";
 std :: cin >> *contact_ptr; 
 
 if(isDigit(phoneContact)) { 
-is_running = false; 
+is_running = false;
+save_contacts(name,phoneContact); 
 record.push_back({name, phoneContact}); 
 }
 
@@ -66,10 +83,25 @@ std :: cout << "Numbers only, try again!\n";
 
 }
 
-
 return record;
 //End of addContact
 }
+
+//This is done to view the contact list. 
+void viewContact () { 
+std :: string contact_file = "contact_file.txt"; 
+std :: ifstream file (contact_file);
+std :: string line;
+
+while (std :: getline(file, line)) {
+std :: cout << line << std :: endl;
+} 
+
+file.close(); 
+ 
+}
+
+// This to help search a certain name. 
 int main () {
 std :: unique_ptr <std :: vector<char_contact>>  record = std :: make_unique<std :: vector<char_contact>>(); 
 int choice; 
@@ -97,12 +129,13 @@ menuOption chose = static_cast<menuOption>(choice - 1);
 
 switch (chose) { 
 case menuOption :: addContact : 
-	std :: cout << "Add contact has been selected\n";
+	std :: cout << "\nAdd contact has been selected\n";
         addContact(*record); 	
 	break; 
 
 case menuOption :: viewContacts: 
-	std :: cout << "View Contacts has been selected\n"; 
+	std :: cout << "\nView Contacts has been selected\n"; 
+	viewContact(); 
 	break; 
 
 case menuOption :: searchContact: 
