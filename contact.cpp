@@ -204,6 +204,13 @@ std :: cout << "No match found for: " << name << std :: endl;
 return record; 
 } 
 
+// Delete function: 
+// Ask the user for name, and then delete it.
+
+std :: vector <char_contact> deleteContact (std :: vector <char_contact>& record) { 
+std :: string name = askName(); 
+findContact(record, name);  
+} 
 
 int main () {
 std :: unique_ptr <std :: vector<char_contact>>  record = std :: make_unique<std :: vector<char_contact>>(); 
@@ -252,10 +259,11 @@ case menuOption :: searchContact: {
 
 
 				  } 
-case menuOption :: deleteContact: 
+case menuOption :: deleteContact: { 
 	std :: cout << "Delete contact has been selected\n"; 
+	deleteContact(*record); 
 	break; 
-
+				  }
 case menuOption :: exit:
         running = false; 	
 	std :: cout << "Application has exit successfully\n"; 
