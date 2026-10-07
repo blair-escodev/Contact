@@ -206,12 +206,62 @@ return record;
 
 // Delete function: 
 // Ask the user for name, and then delete it.
+// Find the position of the name. 
+// Then delete it. 
+// After write it back to the file. 
 
-std :: vector <char_contact> deleteContact (std :: vector <char_contact>& record) { 
-std :: string name = askName(); 
-findContact(record, name);  
+std :: string findName (std :: string  name, std :: vector <char_contact>& record) { 
+const int vectorSize = record.size();
+
+for (int i = 0; i < vectorSize; i++ ) { 
+if (record[i].name == name ) {
+return name; 
+}
+else { 
+return "Name not available "; 
+}
+}
+return name;
 } 
 
+std :: vector <char_contact> contactDeleted (std :: vector <char_contact>& record, std :: string& name) { 
+
+record.erase(
+std :: remove_if(record.begin(), record.end(), [&name] (const char_contact& person) { 
+return person.name == name;
+})
+
+),
+record.end();
+
+return record; 
+} 
+std :: vector <char_contact> deleteContact (std :: vector <char_contact>& record) { 
+char confirmation; 
+bool isRunning = true; 
+std :: string name = askName(); 
+std :: string contactName = findName(name, record);  
+while (isRunning) { 
+if (name == contactName) { 
+std :: cout << "Delete this contact? (y/n): "; 
+std :: cin >> confirmation; 
+
+if(confirmation == 'y' || confirmation == 'Y') { 
+isRunning = false; 
+contactDeleted(record, name);	
+std :: cout << "Contact deleted \n";
+} 
+if(confirmation == 'n' || confirmation == 'n') { 
+isRunning = false; 
+} 
+}
+else { 
+isRunning = false; 
+std :: cout << "Contact can not be found!\n";
+} 
+} 
+
+}
 int main () {
 std :: unique_ptr <std :: vector<char_contact>>  record = std :: make_unique<std :: vector<char_contact>>(); 
 int choice;
@@ -261,6 +311,7 @@ case menuOption :: searchContact: {
 				  } 
 case menuOption :: deleteContact: { 
 	std :: cout << "Delete contact has been selected\n"; 
+	loadContacts(*record);	
 	deleteContact(*record); 
 	break; 
 				  }
