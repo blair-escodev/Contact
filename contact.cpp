@@ -52,6 +52,7 @@ return false;
 }
 return true; 
 } 
+// trim function 
 
 std :: string trim (std :: string& text) { 
 while (!text.empty() && text.back() == ' ') { 
@@ -156,40 +157,40 @@ std :: transform ( name.begin(), name.end(), name.begin(), toupper);
 return name; 
 } 
 
-void  loadContacts (std :: vector <char_contact>& record) { 
+std :: vector <char_contact>loadContacts (std :: vector <char_contact>& record) { 
+record.clear(); 
 char_contact person;
 std :: string line;
 std :: ifstream contactFile ("contactBook.txt"); 
 
 if (!contactFile.is_open()) { 
 std :: cerr << "Error: file cannot be found!\n"; 
+ 
 } 
 
 while (std :: getline(contactFile, line )) { 
+if (line.empty()) continue; 
+
 size_t pos = line.find('|'); 
-if (pos == std :: string :: npos) { 
-continue; 
-}
+
+if (pos != std :: string :: npos) { 
+
 person.name = line.substr(0, pos); 
-person.contact = line.substr(pos + 2);
+person.contact = line.substr(pos + 1);
 record.push_back(person); 
+
 }
-
-while (!person.name.empty() && person.name.back() == ' ') { 
-person.name.pop_back(); 
-} 
-
-while (!person.contact.empty() && person.contact.front() == ' '){
-person.contact.erase(0,1); 
 }
-
+return record; 
 }
 
 // If the name matches with one of the name in the vector, then the name and the phone contact print out
 std :: vector <char_contact> findContact (std :: vector <char_contact>& record, std :: string name) { 
 bool found = false; 
+std :: cout << "Record size: " << record.size() << '\n'; 
 
-for( const auto& contact : record ) { 
+for( const auto& contact : record ) {
+	std :: cout << "[" << contact.name << "] vs [" << name << "]\n"; 
 if (to_upperCase(contact.name) == to_upperCase(name)) { 
 std :: cout << "Name: " << contact.name << ". "  << "Phone number: " << contact.contact << std :: endl; 
 found = true; 
@@ -210,32 +211,26 @@ return record;
 // Then delete it. 
 // After write it back to the file. 
 
-std :: string findName (std :: string  name, std :: vector <char_contact>& record) { 
-const int vectorSize = record.size();
+std :: string findName (std :: string  name, std :: vector <char_contact>& record) {
 
-for (int i = 0; i < vectorSize; i++ ) { 
-if (record[i].name == name ) {
-return name; 
-}
-else { 
-return "Name not available "; 
-}
-}
+for (const auto& person : record) { 
+if (to_upperCase(person.name) == to_upperCase(name)) { 
 return name;
+} 	 
+} 
+return "Name is not available! \n";
 } 
 
-std :: vector <char_contact> contactDeleted (std :: vector <char_contact>& record, std :: string& name) { 
+bool contactDeleted (std :: vector <char_contact>& record, std :: string& name) { 
 
-record.erase(
-std :: remove_if(record.begin(), record.end(), [&name] (const char_contact& person) { 
-return person.name == name;
-})
-
-),
-record.end();
-
-return record; 
-} 
+for (size_t i = 0; i < record.size(); i++ ) { 
+if (to_upperCase(record[i].name) == to_upperCase(name)) { 
+record.erase(record.begin() + i); 
+return true; 
+}
+}
+return false; 
+}
 std :: vector <char_contact> deleteContact (std :: vector <char_contact>& record) { 
 char confirmation; 
 bool isRunning = true; 
@@ -259,9 +254,24 @@ else {
 isRunning = false; 
 std :: cout << "Contact can not be found!\n";
 } 
+	}
+return record; 
+}
+
+void loadToFile (std :: vector <char_contact>& record) { 
+std :: string fileName = "contactBook.txt"; 
+
+std :: ofstream file (fileName); 
+if (!file.is_open()) { 
+std :: cerr << "Error: cannot open file\n"; 
+return; 
 } 
 
-}
+for (const char_contact& p : record) { 
+file << p.name << '|' << p.contact << "\n"; 
+} 
+} 
+
 int main () {
 std :: unique_ptr <std :: vector<char_contact>>  record = std :: make_unique<std :: vector<char_contact>>(); 
 int choice;
@@ -271,7 +281,8 @@ std :: string menu [5] = {"Add contact", "View contacts", "Search contact", "Del
 
 
 //loadContacts(*record); 
-//std :: cout << '[' << (*record)[0].name << "]\n"; 
+//std :: cout << '[' << (*record)[0].name << "]\n";
+
 while (running) {
 	std :: cout << std :: endl << " Menu " << std :: endl; 
 for (int i = 0; i < upperBoundary; i++) {	
@@ -313,6 +324,7 @@ case menuOption :: deleteContact: {
 	std :: cout << "Delete contact has been selected\n"; 
 	loadContacts(*record);	
 	deleteContact(*record); 
+	loadToFile(*record); 
 	break; 
 				  }
 case menuOption :: exit:
