@@ -187,10 +187,8 @@ return record;
 // If the name matches with one of the name in the vector, then the name and the phone contact print out
 std :: vector <char_contact> findContact (std :: vector <char_contact>& record, std :: string name) { 
 bool found = false; 
-std :: cout << "Record size: " << record.size() << '\n'; 
 
-for( const auto& contact : record ) {
-	std :: cout << "[" << contact.name << "] vs [" << name << "]\n"; 
+for( const auto& contact : record ) {; 
 if (to_upperCase(contact.name) == to_upperCase(name)) { 
 std :: cout << "Name: " << contact.name << ". "  << "Phone number: " << contact.contact << std :: endl; 
 found = true; 
@@ -279,9 +277,6 @@ const int upperBoundary = 5;
 bool running = true; 
 std :: string menu [5] = {"Add contact", "View contacts", "Search contact", "Delete contact", "Exit"}; 
 
-
-//loadContacts(*record); 
-//std :: cout << '[' << (*record)[0].name << "]\n";
 
 while (running) {
 	std :: cout << std :: endl << " Menu " << std :: endl; 
