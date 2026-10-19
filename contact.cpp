@@ -8,331 +8,325 @@
 #include <cctype> 
 #include <sstream> 
 
-struct char_contact { 
-	std :: string name; 
-	std :: string contact; 
-}; 
+	struct char_contact { 
+		std :: string name; 
+		std :: string contact; 
+	}; 
 
-enum class menuOption  {
-	addContact, 
-	viewContacts,
-	searchContact, 
-	deleteContact, 
-	exit, 
-};
+	enum class menuOption  {
+		addContact, 
+		viewContacts,
+		searchContact, 
+		deleteContact, 
+		exit, 
+	};
 
-//This is done to save the contact into file. 
-void save_contacts (std :: string& name, std :: string& phoneNumber) { 
-	std :: string contact_file = "contactBook.txt";
-	std :: fstream output_file (contact_file.c_str(), std :: ios :: out | std :: ios :: app); 
-	if(output_file.is_open()) { 
-		output_file << name << '|' << phoneNumber << std :: endl; 
-	} 
-	else { 
-		std :: cerr <<  "File can't be open\n"; 
-	} 
-	output_file.close(); 
-} 
-
-// check if it is digit. 
-// This is done to check: 
-// if the numbers are digit
-// if the numbers are up to 10. 
-// if the input is not empty. 
-bool isDigit (std :: string &phoneContact) { 
-	int length = phoneContact.size();
-	if(phoneContact.empty()) { 
-		return false; 
-	} 
-	for (char digit : phoneContact) { 
-		if (!std :: isdigit(static_cast<unsigned char> (digit)) ||  length != 10) { 
-			return false; 
-		}
-		// end of loop 
-	}
-	return true; 
-} 
-// trim function 
-
-std :: string trim (std :: string& text) { 
-	while (!text.empty() && text.back() == ' ') { 
-		text.pop_back(); 
-	}
-	while (!text.empty() && text.front() == ' ') { 
-		text.erase(0, 1); 
-	} 
-	return text; 
-} 
-// Add contact function
-// It adds the person name, and phone number only 
-// It checks the number of digit if it is up to standard  then it stores the number. 
-
-std :: vector <char_contact> addContact (std :: vector <char_contact>& record) {
-	std :: cin.ignore(std :: numeric_limits<std :: streamsize> :: max(), '\n'); 
-	bool is_running = true; 
-
-	std :: string name; 
-	std :: string* name_ptr = &name; 
-	std :: string phoneContact; 
-	std :: string*  contact_ptr = &phoneContact;
-
-	std :: cout << "Name: "; 
-	std :: getline(std :: cin, *name_ptr); 
-
-	while (is_running){ 
-		std :: cout <<  "Phone Contact: "; 
-		std :: getline (std :: cin , *contact_ptr); 
-
-		if(isDigit(phoneContact)) { 
-			is_running = false;
-			*name_ptr = trim(*name_ptr); 
-			*contact_ptr = (*contact_ptr); 
-			save_contacts(name,phoneContact); 
-			record.push_back({name, phoneContact}); 
-		}
-
-		else{ 
-			std :: cout << "Numbers only, try again!\n"; 
+	//This is done to save the contact into file. 
+	void save_contacts (std :: string& name, std :: string& phoneNumber) { 
+		std :: string contact_file = "contactBook.txt";
+		std :: fstream output_file (contact_file.c_str(), std :: ios :: out | std :: ios :: app); 
+		if(output_file.is_open()) { 
+			output_file << name << '|' << phoneNumber << std :: endl; 
 		} 
-
-	}
-
-	return record;
-	//End of addContact
-}
-
-//This is done to view the contact list. 
-void viewContact (std :: vector <char_contact>& record) { 
-	std :: string line; 
-	std :: ifstream file ("contactBook.txt"); 
-
-
-	if(!file.is_open()) { 
-		std :: cerr <<  "Error: file can not be found! "; 
+		else { 
+			std :: cerr <<  "File can't be open\n"; 
+		} 
+		output_file.close(); 
 	} 
 
-	while (std :: getline(file, line)) { 
-		std :: cout << line << std :: endl; 
-	} 
-}
-
-
-// This to help search a certain name.
-// Send the string to upper case. 
-
-bool check_Name (std :: string name) { 
-
-	if (name.empty()) { 
+	// check if it is digit. 
+	// This is done to check: 
+	// if the numbers are digit
+	// if the numbers are up to 10. 
+	// if the input is not empty. 
+	bool isDigit (std :: string &phoneContact) { 
+		int length = phoneContact.size();
+		if(phoneContact.empty()) { 
+			return false; 
+		} 
+		for (char digit : phoneContact) { 
+			if (!std :: isdigit(static_cast<unsigned char> (digit)) ||  length != 10) { 
+				return false; 
+			}
+			// end of loop 
+		}
 		return true; 
 	} 
-	return false; 
-} 
+	// trim function 
 
-//Ask name function. 
-
-std :: string askName () { 
-	std :: cin.ignore(std :: numeric_limits < std :: streamsize > ::  max(),'\n'); 
-	std :: string name; 
-	bool isRunning = true; 
-	while (isRunning) { 
-		std :: cout << "Enter name to search contact: "; 
-		std :: getline ( std :: cin, name); 
-
-		if (check_Name(name)) { 
-			std :: cout << "Error: name is empty! \n";  
+	std :: string trim (std :: string& text) { 
+		while (!text.empty() && text.back() == ' ') { 
+			text.pop_back(); 
+		}
+		while (!text.empty() && text.front() == ' ') { 
+			text.erase(0, 1); 
 		} 
-		else { 
-			isRunning = false;
-			trim(name); 
-			//std :: cout << "my name is: " << name << std :: endl; 
-			return name; 
-		} 
-	}
-
-	return name; 
-} 	
-
-std :: string  to_upperCase  (std :: string name) { 
-	std :: transform ( name.begin(), name.end(), name.begin(), toupper);
-	return name; 
-} 
-
-std :: vector <char_contact>loadContacts (std :: vector <char_contact>& record) { 
-	record.clear(); 
-	char_contact person;
-	std :: string line;
-	std :: ifstream contactFile ("contactBook.txt"); 
-
-	if (!contactFile.is_open()) { 
-		std :: cerr << "Error: file cannot be found!\n"; 
-
+		return text; 
 	} 
+	// Add contact function
+	// It adds the person name, and phone number only 
+	// It checks the number of digit if it is up to standard  then it stores the number. 
 
-	while (std :: getline(contactFile, line )) { 
-		if (line.empty()) continue; 
+	std :: vector <char_contact> addContact (std :: vector <char_contact>& record) {
+		std :: cin.ignore(std :: numeric_limits<std :: streamsize> :: max(), '\n'); 
+		bool is_running = true; 
 
-		size_t pos = line.find('|'); 
+		std :: string name; 
+		std :: string* name_ptr = &name; 
+		std :: string phoneContact; 
+		std :: string*  contact_ptr = &phoneContact;
 
-		if (pos != std :: string :: npos) { 
+		std :: cout << "Name: "; 
+		std :: getline(std :: cin, *name_ptr); 
 
-			person.name = line.substr(0, pos); 
-			person.contact = line.substr(pos + 1);
-			record.push_back(person); 
+		while (is_running){ 
+			std :: cout <<  "Phone Contact: "; 
+			std :: getline (std :: cin , *contact_ptr); 
+
+			if(isDigit(phoneContact)) { 
+				is_running = false;
+				*name_ptr = trim(*name_ptr); 
+				*contact_ptr = (*contact_ptr); 
+				save_contacts(name,phoneContact); 
+				record.push_back({name, phoneContact}); 
+			}
+
+			else{ 
+				std :: cout << "Numbers only, try again!\n"; 
+			} 
 
 		}
+
+		return record;
+		//End of addContact
 	}
-	return record; 
-}
 
-// If the name matches with one of the name in the vector, then the name and the phone contact print out
-std :: vector <char_contact> findContact (std :: vector <char_contact>& record, std :: string name) { 
-	bool found = false; 
-
-	for( const auto& contact : record ) {; 
-		if (to_upperCase(contact.name) == to_upperCase(name)) { 
-			std :: cout << "Name: " << contact.name << ". "  << "Phone number: " << contact.contact << std :: endl; 
-			found = true; 
-			break; 
+	//This is done to view the contact list. 
+	void viewContact (std :: vector <char_contact>& record) { 
+	std::vector <char_contact>::iterator contacts; 
+		for(contacts = record.begin(); contacts != record.end(); contacts++) { 
+		std::cout << contacts->name << " : "  <<contacts->contact << '\n'; 
 		} 
-
 	}
 
-	if (!found) { 
-		std :: cout << "No match found for: " << name << std :: endl; 
-	} 
-	return record; 
-} 
 
-// Delete function: 
-// Ask the user for name, and then delete it.
-// Find the position of the name. 
-// Then delete it. 
-// After write it back to the file. 
+	// This to help search a certain name.
+	// Send the string to upper case. 
 
-std :: string findName (std :: string  name, std :: vector <char_contact>& record) {
+	bool check_Name (std :: string name) { 
 
-	for (const auto& person : record) { 
-		if (to_upperCase(person.name) == to_upperCase(name)) { 
-			return name;
-		} 	 
-	} 
-	return "Name is not available! \n";
-} 
-
-bool contactDeleted (std :: vector <char_contact>& record, std :: string& name) { 
-
-	for (size_t i = 0; i < record.size(); i++ ) { 
-		if (to_upperCase(record[i].name) == to_upperCase(name)) { 
-			record.erase(record.begin() + i); 
+		if (name.empty()) { 
 			return true; 
-		}
-	}
-	return false; 
-}
-std :: vector <char_contact> deleteContact (std :: vector <char_contact>& record) { 
-	char confirmation; 
-	bool isRunning = true; 
-	std :: string name = askName(); 
-	std :: string contactName = findName(name, record);  
-	while (isRunning) { 
-		if (name == contactName) { 
-			std :: cout << "Delete this contact? (y/n): "; 
-			std :: cin >> confirmation; 
-
-			if(confirmation == 'y' || confirmation == 'Y') { 
-				isRunning = false; 
-				contactDeleted(record, name);	
-				std :: cout << "Contact deleted \n";
-			} 
-			if(confirmation == 'n' || confirmation == 'n') { 
-				isRunning = false; 
-			} 
-		}
-		else { 
-			isRunning = false; 
-			std :: cout << "Contact can not be found!\n";
 		} 
-	}
-	return record; 
-}
-
-void loadToFile (std :: vector <char_contact>& record) { 
-	std :: string fileName = "contactBook.txt"; 
-
-	std :: ofstream file (fileName); 
-	if (!file.is_open()) { 
-		std :: cerr << "Error: cannot open file\n"; 
-		return; 
+		return false; 
 	} 
 
-	for (const char_contact& p : record) { 
-		file << p.name << '|' << p.contact << "\n"; 
+	//Ask name function. 
+
+	std :: string askName () { 
+		std :: cin.ignore(std :: numeric_limits < std :: streamsize > ::  max(),'\n'); 
+		std :: string name; 
+		bool isRunning = true; 
+		while (isRunning) { 
+			std :: cout << "Enter name to search contact: "; 
+			std :: getline ( std :: cin, name); 
+
+			if (check_Name(name)) { 
+				std :: cout << "Error: name is empty! \n";  
+			} 
+			else { 
+				isRunning = false;
+				trim(name); 
+				//std :: cout << "my name is: " << name << std :: endl; 
+				return name; 
+			} 
+		}
+
+		return name; 
+	} 	
+
+	std :: string  to_upperCase  (std :: string name) { 
+		std :: transform ( name.begin(), name.end(), name.begin(), toupper);
+		return name; 
 	} 
-} 
 
-int main () {
-	std :: unique_ptr <std :: vector<char_contact>>  record = std :: make_unique<std :: vector<char_contact>>(); 
-	int choice;
-	const int upperBoundary = 5;
-	bool running = true; 
-	std :: string menu [5] = {"Add contact", "View contacts", "Search contact", "Delete contact", "Exit"}; 
+	std :: vector <char_contact>loadContacts (std :: vector <char_contact>& record) { 
+		record.clear(); 
+		char_contact person;
+		std :: string line;
+		std :: ifstream contactFile ("contactBook.txt"); 
 
+		if (!contactFile.is_open()) { 
+			std :: cerr << "Error: file cannot be found!\n"; 
 
-	while (running) {
-		std :: cout << std :: endl << " Menu " << std :: endl; 
-		for (int i = 0; i < upperBoundary; i++) {	
-			std :: cout << (i + 1) << ". " << menu[i] << '\n'; 
-		} 	
-		std :: cout << "Choose: "; 
-		std :: cin >> choice;
-
-		if (std :: cin.fail() ||  choice < 0 || choice > 5) { 
-			std :: cin.clear(); 
-			std :: cin.ignore(1000, '\n'); 
 		} 
 
+		while (std :: getline(contactFile, line )) { 
+			if (line.empty()) continue; 
 
+			size_t pos = line.find('|'); 
 
-		menuOption chose = static_cast<menuOption>(choice - 1); 
+			if (pos != std :: string :: npos) { 
 
-		switch (chose) { 
-			case menuOption :: addContact : 
-				std :: cout << "\nAdd contact has been selected\n";
-				addContact(*record); 	
-				break; 
+				person.name = line.substr(0, pos); 
+				person.contact = line.substr(pos + 1);
+				record.push_back(person); 
 
-			case menuOption :: viewContacts: 
-				std :: cout << "\nView Contacts has been selected\n"; 
-				viewContact(*record); 	
-				break; 
-
-			case menuOption :: searchContact: {  
-								  std :: cout << "Search contact has been selected\n";  
-								  std :: string name = askName();
-								  loadContacts(*record);
-								  std :: vector <char_contact> search = findContact(*record, name ); 
-								  break; 
-
-
-							  } 
-			case menuOption :: deleteContact: { 
-								  std :: cout << "Delete contact has been selected\n"; 
-								  loadContacts(*record);	
-								  deleteContact(*record); 
-								  loadToFile(*record); 
-								  break; 
-							  }
-			case menuOption :: exit:
-							  running = false; 	
-							  std :: cout << "Application has exit successfully\n"; 
-							  break; 
-			default : 
-							  std :: cout << "Try again\n"; 
-							  break; 
-		} 
-
+			}
+		}
+		return record; 
 	}
 
+	// If the name matches with one of the name in the vector, then the name and the phone contact print out
+	std :: vector <char_contact> findContact (std :: vector <char_contact>& record, std :: string name) { 
+		bool found = false; 
 
-	// End of main.
-}
+		for( const auto& contact : record ) {; 
+			if (to_upperCase(contact.name) == to_upperCase(name)) { 
+				std :: cout << "Name: " << contact.name << ". "  << "Phone number: " << contact.contact << std :: endl; 
+				found = true; 
+				break; 
+			} 
+
+		}
+
+		if (!found) { 
+			std :: cout << "No match found for: " << name << std :: endl; 
+		} 
+		return record; 
+	} 
+
+	// Delete function: 
+	// Ask the user for name, and then delete it.
+	// Find the position of the name. 
+	// Then delete it. 
+	// After write it back to the file. 
+
+	std :: string findName (std :: string  name, std :: vector <char_contact>& record) {
+
+		for (const auto& person : record) { 
+			if (to_upperCase(person.name) == to_upperCase(name)) { 
+				return name;
+			} 	 
+		} 
+		return "Name is not available! \n";
+	} 
+
+	bool contactDeleted (std :: vector <char_contact>& record, std :: string& name) { 
+
+		for (size_t i = 0; i < record.size(); i++ ) { 
+			if (to_upperCase(record[i].name) == to_upperCase(name)) { 
+				record.erase(record.begin() + i); 
+				return true; 
+			}
+		}
+		return false; 
+	}
+	std :: vector <char_contact> deleteContact (std :: vector <char_contact>& record) { 
+		char confirmation; 
+		bool isRunning = true; 
+		std :: string name = askName(); 
+		std :: string contactName = findName(name, record);  
+		while (isRunning) { 
+			if (name == contactName) { 
+				std :: cout << "Delete this contact? (y/n): "; 
+				std :: cin >> confirmation; 
+
+				if(confirmation == 'y' || confirmation == 'Y') { 
+					isRunning = false; 
+					contactDeleted(record, name);	
+					std :: cout << "Contact deleted \n";
+				} 
+				if(confirmation == 'n' || confirmation == 'n') { 
+					isRunning = false; 
+				} 
+			}
+			else { 
+				isRunning = false; 
+				std :: cout << "Contact can not be found!\n";
+			} 
+		}
+		return record; 
+	}
+
+	void loadToFile (std :: vector <char_contact>& record) { 
+		std :: string fileName = "contactBook.txt"; 
+
+		std :: ofstream file (fileName); 
+		if (!file.is_open()) { 
+			std :: cerr << "Error: cannot open file\n"; 
+			return; 
+		} 
+
+		for (const char_contact& p : record) { 
+			file << p.name << '|' << p.contact << "\n"; 
+		} 
+	} 
+
+	int main () {
+		std :: unique_ptr <std :: vector<char_contact>>  record = std :: make_unique<std :: vector<char_contact>>(); 
+		int choice;
+		const int upperBoundary = 5;
+		bool running = true; 
+		std :: string menu [5] = {"Add contact", "View contacts", "Search contact", "Delete contact", "Exit"}; 
+
+
+		while (running) {
+			std :: cout << std :: endl << " Menu " << std :: endl; 
+			for (int i = 0; i < upperBoundary; i++) {	
+				std :: cout << (i + 1) << ". " << menu[i] << '\n'; 
+			} 	
+			std :: cout << "Choose: "; 
+			std :: cin >> choice;
+
+			if (std :: cin.fail() ||  choice < 0 || choice > 5) { 
+				std :: cin.clear(); 
+				std :: cin.ignore(1000, '\n'); 
+			} 
+
+
+
+			menuOption chose = static_cast<menuOption>(choice - 1); 
+
+			switch (chose) { 
+				case menuOption :: addContact : 
+					std :: cout << "\nAdd contact has been selected\n";
+					addContact(*record); 	
+					break; 
+
+				case menuOption :: viewContacts: 
+					std :: cout << "\nView Contacts has been selected\n";
+				       	loadContacts(*record); 	
+					viewContact(*record); 	
+					break; 
+
+				case menuOption :: searchContact: {  
+									  std :: cout << "Search contact has been selected\n";  
+									  std :: string name = askName();
+									  loadContacts(*record);
+									  std :: vector <char_contact> search = findContact(*record, name ); 
+									  break; 
+
+
+								  } 
+				case menuOption :: deleteContact: { 
+									  std :: cout << "Delete contact has been selected\n"; 
+									  loadContacts(*record);	
+									  deleteContact(*record); 
+									  loadToFile(*record); 
+									  break; 
+								  }
+				case menuOption :: exit:
+								  running = false; 	
+								  std :: cout << "Application has exit successfully\n"; 
+								  break; 
+				default : 
+								  std :: cout << "Try again\n"; 
+								  break; 
+			} 
+
+		}
+
+
+		// End of main.
+	}
