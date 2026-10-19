@@ -8,9 +8,9 @@
 #include <cctype> 
 #include <sstream> 
 
-	struct char_contact { 
+	struct contact { 
 		std :: string name; 
-		std :: string contact; 
+		std :: string phoneNumber; 
 	}; 
 
 	enum class menuOption  {
@@ -67,7 +67,7 @@
 	// It adds the person name, and phone number only 
 	// It checks the number of digit if it is up to standard  then it stores the number. 
 
-	std :: vector <char_contact> addContact (std :: vector <char_contact>& record) {
+	std :: vector <contact> addContact (std :: vector <contact>& record) {
 		std :: cin.ignore(std :: numeric_limits<std :: streamsize> :: max(), '\n'); 
 		bool is_running = true; 
 
@@ -102,10 +102,10 @@
 	}
 
 	//This is done to view the contact list. 
-	void viewContact (std :: vector <char_contact>& record) { 
-	std::vector <char_contact>::iterator contacts; 
+	void viewContact (std :: vector <contact>& record) { 
+	std::vector <contact>::iterator contacts; 
 		for(contacts = record.begin(); contacts != record.end(); contacts++) { 
-		std::cout << contacts->name << " : "  <<contacts->contact << '\n'; 
+		std::cout << contacts->name << " : "  <<contacts->phoneNumber << '\n'; 
 		} 
 	}
 
@@ -150,9 +150,9 @@
 		return name; 
 	} 
 
-	std :: vector <char_contact>loadContacts (std :: vector <char_contact>& record) { 
+	std :: vector <contact>loadContacts (std :: vector <contact>& record) { 
 		record.clear(); 
-		char_contact person;
+		contact person;
 		std :: string line;
 		std :: ifstream contactFile ("contactBook.txt"); 
 
@@ -169,7 +169,7 @@
 			if (pos != std :: string :: npos) { 
 
 				person.name = line.substr(0, pos); 
-				person.contact = line.substr(pos + 1);
+				person.phoneNumber = line.substr(pos + 1);
 				record.push_back(person); 
 
 			}
@@ -178,12 +178,12 @@
 	}
 
 	// If the name matches with one of the name in the vector, then the name and the phone contact print out
-	std :: vector <char_contact> findContact (std :: vector <char_contact>& record, std :: string name) { 
+	std :: vector <contact> findContact (std :: vector <contact>& record, std :: string name) { 
 		bool found = false; 
 
 		for( const auto& contact : record ) {; 
 			if (to_upperCase(contact.name) == to_upperCase(name)) { 
-				std :: cout << "Name: " << contact.name << ". "  << "Phone number: " << contact.contact << std :: endl; 
+				std :: cout << "Name: " << contact.name << ". "  << "Phone number: " << contact.phoneNumber << std :: endl; 
 				found = true; 
 				break; 
 			} 
@@ -202,7 +202,7 @@
 	// Then delete it. 
 	// After write it back to the file. 
 
-	std :: string findName (std :: string  name, std :: vector <char_contact>& record) {
+	std :: string findName (std :: string  name, std :: vector <contact>& record) {
 
 		for (const auto& person : record) { 
 			if (to_upperCase(person.name) == to_upperCase(name)) { 
@@ -212,7 +212,7 @@
 		return "Name is not available! \n";
 	} 
 
-	bool contactDeleted (std :: vector <char_contact>& record, std :: string& name) { 
+	bool contactDeleted (std :: vector <contact>& record, std :: string& name) { 
 
 		for (size_t i = 0; i < record.size(); i++ ) { 
 			if (to_upperCase(record[i].name) == to_upperCase(name)) { 
@@ -222,7 +222,7 @@
 		}
 		return false; 
 	}
-	std :: vector <char_contact> deleteContact (std :: vector <char_contact>& record) { 
+	std :: vector <contact> deleteContact (std :: vector <contact>& record) { 
 		char confirmation; 
 		bool isRunning = true; 
 		std :: string name = askName(); 
@@ -249,7 +249,7 @@
 		return record; 
 	}
 
-	void loadToFile (std :: vector <char_contact>& record) { 
+	void loadToFile (std :: vector <contact>& record) { 
 		std :: string fileName = "contactBook.txt"; 
 
 		std :: ofstream file (fileName); 
@@ -258,13 +258,13 @@
 			return; 
 		} 
 
-		for (const char_contact& p : record) { 
-			file << p.name << '|' << p.contact << "\n"; 
+		for (const contact& p : record) { 
+			file << p.name << '|' << p.phoneNumber << "\n"; 
 		} 
 	} 
 
 	int main () {
-		std :: unique_ptr <std :: vector<char_contact>>  record = std :: make_unique<std :: vector<char_contact>>(); 
+		std :: unique_ptr <std :: vector<contact>>  record = std :: make_unique<std :: vector<contact>>(); 
 		int choice;
 		const int upperBoundary = 5;
 		bool running = true; 
@@ -304,7 +304,7 @@
 									  std :: cout << "Search contact has been selected\n";  
 									  std :: string name = askName();
 									  loadContacts(*record);
-									  std :: vector <char_contact> search = findContact(*record, name ); 
+									  std :: vector <contact> search = findContact(*record, name ); 
 									  break; 
 
 
